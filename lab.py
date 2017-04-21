@@ -124,7 +124,7 @@ def evaluate(tree):
     if type(tree) == float or type(tree) == int:
         return tree
     elif type(tree) == list:
-        return evaluate(carlae_builtins[tree[0]](tree[1:]))
+        return evaluate(carlae_builtins[tree[0]](list(map(lambda x: evaluate(x), tree[1:]))))
     elif tree in carlae_builtins:
         return carlae_builtins[tree]
     raise EvaluationError
