@@ -38,9 +38,10 @@ def tokenize(source):
         while word[::-1].find('(') == 0 or word[::-1].find(')') == 0:
             end += [word[-1]]
             word = word[:-1]
-        out += [word] + end[::-1]
+        if word != '':
+            out += [word]
+        out += end[::-1]
     return out
-
 
 
 def parse(tokens):
@@ -53,7 +54,6 @@ def parse(tokens):
     Arguments:
         tokens (list): a list of strings representing tokens
     """
-    #print(tokens, len(tokens))
     if tokens == []: return []
     if tokens[0] == ')':
         raise SyntaxError
@@ -75,6 +75,7 @@ def parse(tokens):
                 key += 1
     return ans
 
+
 def find_paren(tokens, c=-1):
     count = c
     for index, token in enumerate(tokens):
@@ -85,6 +86,7 @@ def find_paren(tokens, c=-1):
             if count == 0: return index
             count -= 1
     raise SyntaxError
+
 
 def multiply(args):
     ans = 1
@@ -100,6 +102,14 @@ carlae_builtins = {
 }
 
 
+def repl():
+    inp = input('in> ')
+    if inp == 'QUIT' or inp == 'q': exit()
+    try:
+        print('  out> ' + str(evaluate(parse(tokenize(inp)))) + '\n')
+    except Exception as e:
+        print('   ' + e.__class__.__name__ + ': ' + str(e) + '\n')
+    repl()
 
 
 def evaluate(tree):
@@ -123,4 +133,5 @@ def evaluate(tree):
 if __name__ == '__main__':
     # code in this block will only be executed if lab.py is the main file being
     # run (not when this module is imported)
-    print(evaluate(['+', 2, 3]))
+    repl()
+
