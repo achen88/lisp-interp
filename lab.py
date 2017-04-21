@@ -86,10 +86,20 @@ def find_paren(tokens, c=-1):
             count -= 1
     raise SyntaxError
 
+def multiply(args):
+    ans = 1
+    for num in args:
+        ans *= num
+    return ans
+
 carlae_builtins = {
     '+': sum,
     '-': lambda args: -args[0] if len(args) == 1 else (args[0] - sum(args[1:])),
+    '*': multiply,
+    '/': lambda args: args[0] if len(args) == 1 else args[0]/multiply(args[1:])
 }
+
+
 
 
 def evaluate(tree):
@@ -101,14 +111,16 @@ def evaluate(tree):
         tree (type varies): a fully parsed expression, as the output from the
                             parse function
     """
-    raise NotImplementedError
+    if type(tree) == float or type(tree) == int:
+        return tree
+    elif type(tree) == list:
+        return evaluate(carlae_builtins[tree[0]](tree[1:]))
+    elif tree in carlae_builtins:
+        return carlae_builtins[tree]
+    raise EvaluationError
 
 
 if __name__ == '__main__':
     # code in this block will only be executed if lab.py is the main file being
     # run (not when this module is imported)
-    txt = ['(', 'srini', 'adam', 'chris', 'duane', ')', ')']
-    #print(find_paren(['(', 'expressions', '(', 'test', ')', '(', 'is', 'here', ')', '(', '(', '(', '(', 'now', ')', ')', ')', ')', ')']))
-    #a = ['(', 'expressions', '(', 'test', ')', '(', 'is', 'here', ')', '(', '(', '(', '(', 'now', ')', ')', ')', ')', ')']
-    #print(find_paren(a), len(a))
-    print(parse(txt))
+    print(evaluate(['+', 2, 3]))
