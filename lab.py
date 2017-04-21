@@ -102,6 +102,7 @@ carlae_builtins = {
 }
 
 
+
 def repl():
     inp = input('in> ')
     if inp == 'QUIT' or inp == 'q': exit()
@@ -112,7 +113,7 @@ def repl():
     repl()
 
 
-def evaluate(tree):
+def evaluate(tree, env=None):
     """
     Evaluate the given syntax tree according to the rules of the carlae
     language.
@@ -121,13 +122,29 @@ def evaluate(tree):
         tree (type varies): a fully parsed expression, as the output from the
                             parse function
     """
+    if env == None:
+        env = carlae_builtins
+    else:
+        for op in carlae_builtins:
+            if op not in env:
+                env[op] = carlae_builtins[op]
     if type(tree) == float or type(tree) == int:
         return tree
     elif type(tree) == list:
-        return evaluate(carlae_builtins[tree[0]](list(map(lambda x: evaluate(x), tree[1:]))))
-    elif tree in carlae_builtins:
-        return carlae_builtins[tree]
+        if tree[0] == 'define':
+            if(len(tree[2:]) == 1):
+                env[tree[1]] = evaluate(tree[2])
+            else:
+                env[tree[1]] = evaluate(list(map(lambda x: evaluate(x), tree[2:])))
+            return env[tree[1]]
+        return evaluate(env[tree[0]](list(map(lambda x: evaluate(x), tree[1:]))))
+    elif tree in env:
+        return env[tree]
     raise EvaluationError
+
+
+def result_and_env(tree, env=None):
+    return (evaluate(tree, env), env)
 
 
 if __name__ == '__main__':
