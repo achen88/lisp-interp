@@ -1,0 +1,40 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Testing conditional execution inside function",
+  "args": [
+    [
+      [
+        "define",
+        [
+          "abs",
+          "x"
+        ],
+        [
+          "if",
+          [
+            ">=",
+            "x",
+            0
+          ],
+          "x",
+          [
+            "-",
+            "x"
+          ]
+        ]
+      ],
+      [
+        "abs",
+        -20
+      ],
+      [
+        "abs",
+        0
+      ],
+      [
+        "abs",
+        20
+      ]
+    ]
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Test define keyword",
+  "args": [
+    [
+      [
+        "define",
+        "somevariable",
+        [
+          "+",
+          1,
+          2
+        ]
+      ],
+      [
+        "+",
+        7,
+        [
+          "*",
+          "somevariable",
+          2
+        ]
+      ]
+    ]
+  ]
+}

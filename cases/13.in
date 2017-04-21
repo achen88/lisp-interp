@@ -1,0 +1,41 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Tests for function implementation and scoping",
+  "args": [
+    [
+      [
+        "define",
+        [
+          "square",
+          "x"
+        ],
+        [
+          "*",
+          "x",
+          "x"
+        ]
+      ],
+      [
+        "define",
+        [
+          "fourthpow",
+          "x"
+        ],
+        [
+          "square",
+          [
+            "square",
+            "x"
+          ]
+        ]
+      ],
+      [
+        "fourthpow",
+        [
+          "square",
+          2
+        ]
+      ]
+    ]
+  ]
+}

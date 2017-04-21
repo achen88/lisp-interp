@@ -1,0 +1,19 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Renaming a function shouldn't change its behavior",
+  "args": [
+    [
+      [
+        "define",
+        "dosomething",
+        "+"
+      ],
+      [
+        "dosomething",
+        2,
+        3,
+        4
+      ]
+    ]
+  ]
+}

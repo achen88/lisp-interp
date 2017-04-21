@@ -1,0 +1,29 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Tests for function implementation and scoping",
+  "args": [
+    [
+      [
+        "define",
+        [
+          "foo",
+          "x"
+        ],
+        [
+          "*",
+          "x",
+          "y"
+        ]
+      ],
+      [
+        "define",
+        "y",
+        20
+      ],
+      [
+        "foo",
+        3
+      ]
+    ]
+  ]
+}

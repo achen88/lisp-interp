@@ -1,0 +1,31 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Testing \"or\" short-circuiting",
+  "args": [
+    [
+      [
+        "if",
+        [
+          "or",
+          [
+            "<",
+            3,
+            4
+          ],
+          [
+            "<",
+            5,
+            [
+              "define",
+              "y",
+              8
+            ]
+          ]
+        ],
+        1,
+        0
+      ],
+      "y"
+    ]
+  ]
+}

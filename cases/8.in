@@ -1,0 +1,13 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Looking up a nonexistent variable should cause an error",
+  "args": [
+    [
+      [
+        "define",
+        "foo",
+        "x"
+      ]
+    ]
+  ]
+}

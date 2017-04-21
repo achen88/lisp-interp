@@ -1,0 +1,26 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Test shadowing of +",
+  "args": [
+    [
+      [
+        "define",
+        [
+          "+",
+          "x",
+          "y"
+        ],
+        [
+          "*",
+          "x",
+          "y"
+        ]
+      ],
+      [
+        "+",
+        2,
+        3
+      ]
+    ]
+  ]
+}

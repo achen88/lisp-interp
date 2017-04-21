@@ -1,0 +1,32 @@
+{
+  "function": "test_continued_evaluations",
+  "test": "Test attempted shadowing of if",
+  "args": [
+    [
+      [
+        "define",
+        [
+          "if",
+          "x",
+          "y",
+          "z"
+        ],
+        [
+          "+",
+          "y",
+          "z"
+        ]
+      ],
+      [
+        "if",
+        [
+          "<=",
+          2,
+          3
+        ],
+        7,
+        8
+      ]
+    ]
+  ]
+}

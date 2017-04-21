@@ -1,0 +1,23 @@
+{
+  "function": "test_tokenize_and_parse",
+  "test": "Test tokenizer and parser together on various inputs",
+  "args": [
+    [
+      "bare-name",
+      "6.28",
+      "(foo)",
+      "(john paul george ringo)",
+      "(srini adam chris duane))",
+      "((missing-paren",
+      ")(foo)(",
+      "foo ; (",
+      "(numbers 3.14 3 -2 -2.4)",
+      "(multi\nline\nstatement)",
+      "(with comments) ; comment test",
+      "(multiline ; with comments\n statement) ; with comments",
+      "(weird          white\n                 space)",
+      "(w3!|]\\d5y8[]1$)",
+      "(nested (expressions (test) (is here) ((((now))))))"
+    ]
+  ]
+}
