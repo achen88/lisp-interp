@@ -94,23 +94,30 @@ def multiply(args):
         ans *= num
     return ans
 
+def custom_reduc(f, arr):
+    start = arr[0]
+    for val in arr[1:]:
+        if not f(start, val):
+            return False
+        start = val
+    return True
+
+bools = {True: '#t', False: '#f'}
+
 carlae_builtins = {
     '+': sum,
     '-': lambda args: -args[0] if len(args) == 1 else (args[0] - sum(args[1:])),
     '*': multiply,
-    '/': lambda args: args[0] if len(args) == 1 else args[0]/multiply(args[1:])
+    '/': lambda args: args[0] if len(args) == 1 else args[0]/multiply(args[1:]),
+    '=?': lambda args: bools[custom_reduc(lambda x, y: x == y, args)],
+    '>': lambda args: bools[custom_reduc(lambda x, y: x > y, args)],
+    '>=': lambda args: bools[custom_reduc(lambda x, y: x >= y, args)],
+    '<': lambda args: bools[custom_reduc(lambda x, y: x < y, args)],
+    '<=': lambda args: bools[custom_reduc(lambda x, y: x <= y, args)],
+    #'and': lambda args: bools[custom_reduc(lambda x, y: x == '#t', args) and args[-1] == '#t'],
+    #'or': lambda args: bools[not (args[0] == '#f' and custom_reduc(lambda x, y: y == '#f', args))],
+    'not': lambda args: '#f' if args[0] == '#t' else '#t'
 }
-
-
-
-def repl():
-    inp = input('in> ')
-    if inp == 'QUIT' or inp == 'q': exit()
-    try:
-        print('  out> ' + str(evaluate(parse(tokenize(inp)))) + '\n')
-    except Exception as e:
-        print('   ' + e.__class__.__name__ + ': ' + str(e) + '\n')
-    repl()
 
 
 def evaluate(tree, env=None):
@@ -122,8 +129,13 @@ def evaluate(tree, env=None):
         tree (type varies): a fully parsed expression, as the output from the
                             parse function
     """
+    #print(tree)
+    if tree == []:
+        raise EvaluationError
     if env == None:
-        env = carlae_builtins
+        env = {}
+        for op in carlae_builtins:
+            env[op] = carlae_builtins[op]
     else:
         for op in carlae_builtins:
             if op not in env:
@@ -132,23 +144,64 @@ def evaluate(tree, env=None):
         return tree
     elif type(tree) == list:
         if tree[0] == 'define':
-            if(len(tree[2:]) == 1):
-                env[tree[1]] = evaluate(tree[2])
-            else:
-                env[tree[1]] = evaluate(list(map(lambda x: evaluate(x), tree[2:])))
+            if type(tree[1]) == list:
+                func = evaluate(['define', tree[1][0], ['lambda', tree[1][1:], tree[2]]], env) #i luv python slicing
+                return func
+            env[tree[1]] = evaluate(tree[2], env)
             return env[tree[1]]
-        return evaluate(env[tree[0]](list(map(lambda x: evaluate(x), tree[1:]))))
+        elif tree[0] == 'lambda':
+            def fn(args): 
+                fn_env = {}
+                for op in env:
+                    fn_env[op] = env[op]
+                for ind, param in enumerate(tree[1]):
+                    evaluate(['define', param, args[ind]], fn_env)
+                return evaluate(tree[2], fn_env)
+            #fn_env[fn] = evaluate(fn, args?) ??????
+            return fn
+        elif tree[0] == 'if':
+            if evaluate(tree[1], env) == '#t':
+                return evaluate(tree[2], env)
+            return evaluate(tree[3], env)
+        elif tree[0] == 'and':
+            return bools[custom_reduc(lambda x, y: evaluate(x) == '#t', tree[1:]) and evaluate(tree[1:][-1]) == '#t']
+        elif tree[0] == 'or':
+            return bools[not (custom_reduc(lambda x, y: evaluate(x) == '#f', tree[1:])) or evaluate(tree[1:][-1]) == '#t']
+        else:
+            if type(evaluate(tree[0], env)) != type(lambda x: x) and type(evaluate(tree[0], env)) != type(sum):
+                raise EvaluationError
+            func = evaluate(tree[0], env)
+            params = list(map(lambda x: evaluate(x, env), tree[1:]))
+            return evaluate(func(params), env)
+    elif type(tree) == type(lambda x: x):
+        return tree
     elif tree in env:
         return env[tree]
+    if tree == '#f' or tree == '#t':
+        return tree
     raise EvaluationError
 
 
+def repl(env=None):
+    inp = input('in> ')
+    if inp == 'QUIT' or inp == 'q': exit()
+    try:  
+        out, env = result_and_env((parse(tokenize(inp))), env)
+        print('  out> ' + str(out) + '\n')
+    except Exception as e:
+        print('   ' + e.__class__.__name__ + ': ' + str(e) + '\n')
+    repl(env)
+
 def result_and_env(tree, env=None):
+    print(tree)
+    if env == None:
+        env = {}
     return (evaluate(tree, env), env)
 
 
 if __name__ == '__main__':
     # code in this block will only be executed if lab.py is the main file being
     # run (not when this module is imported)
+
     repl()
 
