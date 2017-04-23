@@ -155,7 +155,7 @@ def evaluate(tree, env=None):
                 for op in env:
                     fn_env[op] = env[op]
                 for ind, param in enumerate(tree[1]):
-                    evaluate(['define', param, args[ind]], fn_env)
+                    fn_env[param] = args[ind]
                 return evaluate(tree[2], fn_env)
             #fn_env[fn] = evaluate(fn, args?) ??????
             return fn
@@ -174,7 +174,7 @@ def evaluate(tree, env=None):
             params = list(map(lambda x: evaluate(x, env), tree[1:]))
             return evaluate(func(params), env)
     elif type(tree) == type(lambda x: x):
-        return tree
+       return tree
     elif tree in env:
         return env[tree]
     if tree == '#f' or tree == '#t':
@@ -193,7 +193,7 @@ def repl(env=None):
     repl(env)
 
 def result_and_env(tree, env=None):
-    print(tree)
+    #print(tree)
     if env == None:
         env = {}
     return (evaluate(tree, env), env)
