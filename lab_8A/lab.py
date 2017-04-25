@@ -205,9 +205,9 @@ def evaluate(tree, env=None):
         #separate definitions for on-the-fly evaluation for short-circuiting purposes
         #cannot be built-ins because function calling preemptively evaluates all parameters
         elif tree[0] == 'and':
-            return bools[custom_reduc(lambda x, y: evaluate(x) == '#t', tree[1:]) and evaluate(tree[1:][-1]) == '#t']
+            return bools[custom_reduc(lambda x, y: evaluate(x, env) == '#t', tree[1:]) and evaluate(tree[1:][-1], env) == '#t']
         elif tree[0] == 'or':
-            return bools[not (custom_reduc(lambda x, y: evaluate(x) == '#f', tree[1:])) or evaluate(tree[1:][-1]) == '#t']
+            return bools[not (custom_reduc(lambda x, y: evaluate(x, env) == '#f', tree[1:])) or evaluate(tree[1:][-1], env) == '#t']
         #call function
         elif type(evaluate(tree[0], env)) == type(lambda x: x) or type(evaluate(tree[0], env)) == type(sum):
             func = evaluate(tree[0], env)
