@@ -1,0 +1,33 @@
+{
+  "test": "Test for set!",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "define",
+        "y",
+        10
+      ],
+      "y",
+      [
+        [
+          "lambda",
+          [
+            "z"
+          ],
+          [
+            "set!",
+            "y",
+            [
+              "+",
+              "z",
+              6
+            ]
+          ]
+        ],
+        9
+      ],
+      "y"
+    ]
+  ]
+}

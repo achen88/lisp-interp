@@ -1,0 +1,20 @@
+[
+  {
+    "ok": true,
+    "output": "SOMETHING"
+  },
+  {
+    "ok": false,
+    "exception": [
+      "an error occurred"
+    ],
+    "type": "EvaluationError"
+  },
+  {
+    "ok": false,
+    "exception": [
+      "an error occurred"
+    ],
+    "type": "EvaluationError"
+  }
+]

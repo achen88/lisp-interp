@@ -1,0 +1,31 @@
+{
+  "test": "Test for \"and\" short-circuiting",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "if",
+        [
+          "and",
+          [
+            ">",
+            3,
+            4
+          ],
+          [
+            "<",
+            5,
+            [
+              "define",
+              "x",
+              6
+            ]
+          ]
+        ],
+        1,
+        0
+      ],
+      "x"
+    ]
+  ]
+}

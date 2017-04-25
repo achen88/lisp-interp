@@ -1,0 +1,42 @@
+{
+  "test": "Testing \"map\"",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "map",
+        "-",
+        [
+          "list",
+          7,
+          9,
+          3,
+          2
+        ]
+      ],
+      [
+        "map",
+        [
+          "lambda",
+          [
+            "x"
+          ],
+          [
+            "*",
+            "x",
+            2,
+            "x",
+            2
+          ]
+        ],
+        [
+          "list",
+          10,
+          9,
+          8,
+          7
+        ]
+      ]
+    ]
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "test": "Evaluating from resources/simple_test3.crl",
+  "function": "test_file_eval",
+  "args": [
+    "resources/simple_test3.crl"
+  ]
+}

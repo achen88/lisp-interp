@@ -1,3 +1,4 @@
-__*
-resources
-readme.pdf
+*/__*
+*/resources
+*/readme.pdf
+.DS*

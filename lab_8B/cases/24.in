@@ -1,0 +1,7 @@
+{
+  "test": "Testing \"begin\" from file (simple_test4.crl)",
+  "function": "test_file_eval",
+  "args": [
+    "resources/simple_test4.crl"
+  ]
+}

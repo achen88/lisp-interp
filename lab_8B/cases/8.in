@@ -1,0 +1,49 @@
+{
+  "test": "Testing \"car\" and \"cdr\"",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "cdr",
+        [
+          "cdr",
+          [
+            "cdr",
+            [
+              "list",
+              1,
+              2,
+              3,
+              4
+            ]
+          ]
+        ]
+      ],
+      [
+        "car",
+        [
+          "cdr",
+          [
+            "cdr",
+            [
+              "cdr",
+              [
+                "list",
+                1,
+                2,
+                3,
+                4
+              ]
+            ]
+          ]
+        ]
+      ],
+      [
+        "car",
+        [
+          "list"
+        ]
+      ]
+    ]
+  ]
+}

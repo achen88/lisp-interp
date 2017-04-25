@@ -1,0 +1,46 @@
+{
+  "test": "Testing \"elt-at-index\"",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "elt-at-index",
+        [
+          "list",
+          9,
+          8,
+          7
+        ],
+        2
+      ],
+      [
+        "elt-at-index",
+        [
+          "list",
+          1
+        ],
+        20
+      ],
+      [
+        "elt-at-index",
+        [
+          "list",
+          2,
+          3,
+          4,
+          5,
+          9,
+          10
+        ],
+        0
+      ],
+      [
+        "elt-at-index",
+        [
+          "list"
+        ],
+        0
+      ]
+    ]
+  ]
+}

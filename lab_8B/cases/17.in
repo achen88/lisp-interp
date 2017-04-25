@@ -1,0 +1,20 @@
+{
+  "test": "Testing \"reduce\"",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "reduce",
+        "/",
+        [
+          "list",
+          1,
+          2,
+          3,
+          4
+        ],
+        20
+      ]
+    ]
+  ]
+}

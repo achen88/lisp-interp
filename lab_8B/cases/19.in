@@ -1,0 +1,57 @@
+{
+  "test": "Testing map/filter/reduce example",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "define",
+        "some_list",
+        [
+          "list",
+          -1,
+          2,
+          -3,
+          4,
+          -5,
+          6,
+          -7,
+          8
+        ]
+      ],
+      [
+        "reduce",
+        "+",
+        [
+          "map",
+          [
+            "lambda",
+            [
+              "i"
+            ],
+            [
+              "*",
+              "i",
+              "i"
+            ]
+          ],
+          [
+            "filter",
+            [
+              "lambda",
+              [
+                "i"
+              ],
+              [
+                "<",
+                "i",
+                0
+              ]
+            ],
+            "some_list"
+          ]
+        ],
+        0
+      ]
+    ]
+  ]
+}

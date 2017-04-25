@@ -1,0 +1,38 @@
+{
+  "test": "Combined test of convenience functions",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "length",
+        [
+          "elt-at-index",
+          [
+            "concat",
+            [
+              "list",
+              9,
+              8,
+              7,
+              6
+            ],
+            [
+              "list",
+              [
+                "list",
+                7,
+                8,
+                9
+              ]
+            ],
+            [
+              "list",
+              20
+            ]
+          ],
+          4
+        ]
+      ]
+    ]
+  ]
+}

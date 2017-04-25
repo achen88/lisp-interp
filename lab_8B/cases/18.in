@@ -1,0 +1,35 @@
+{
+  "test": "Testing \"reduce\"",
+  "function": "test_continued_evaluations",
+  "args": [
+    [
+      [
+        "reduce",
+        [
+          "lambda",
+          [
+            "x",
+            "y"
+          ],
+          [
+            "*",
+            [
+              "/",
+              1,
+              "x"
+            ],
+            "y"
+          ]
+        ],
+        [
+          "list",
+          1,
+          2,
+          3,
+          4
+        ],
+        2
+      ]
+    ]
+  ]
+}
