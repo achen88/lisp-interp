@@ -3,6 +3,18 @@
 import sys
 
 
+class LinkedList():
+    def __init__(self, val):
+        self.elt = val
+        self.next = None
+
+    def append(self, val):
+        self.next = LinkedList(val)
+
+    def __repr__(self):
+        return str(self.elt) + ' ' + str(self.next)
+
+
 class EvaluationError(Exception):
     """Exception to be raised if there is an error during evaluation."""
     pass
@@ -70,7 +82,7 @@ def parse(tokens):
             return tokens[0]
     #is open paren
     else:
-        ans = []
+        cur = []
         #unbox
         find_paren(tokens)
         statement = tokens[1:-1]
@@ -78,12 +90,12 @@ def parse(tokens):
         #recurseif paren, otherwise add to list
         while key < len(statement):
             if statement[key] == '(':
-                ans.append(parse(statement[key:key+find_paren(statement[key:])+1]))
+                cur.append(parse(statement[key:key+find_paren(statement[key:])+1]))
                 key += find_paren(statement[key:]) + 1
             else:
-                ans.append(parse([statement[key]]))
+                cur.append(parse([statement[key]]))
                 key += 1
-    return ans
+    return cur
 
 
 def find_paren(tokens):
@@ -113,10 +125,10 @@ def multiply(args):
     Arguments:
         args (list): a list of numbers to multiply
     """
-    ans = 1
+    cur = 1
     for num in args:
-        ans *= num
-    return ans
+        cur *= num
+    return cur
 
 def custom_reduc(f, arr):
     """
@@ -133,7 +145,48 @@ def custom_reduc(f, arr):
         start = val
     return True
 
-#mapping of booleans to carlae representations
+def listify(args):
+    if args == []: return None
+    head = LinkedList(args[0])
+    cur = head
+    for val in args[1:]:
+        cur.next = LinkedList(val)
+        cur = cur.next
+    return head
+
+def length(args):
+    if args[0] == None: return 0
+    size = 1
+    cur = args[0]
+    while cur.next != None:
+        cur = cur.next
+        size += 1
+    return size
+
+def elt_at(args):
+    if args[0] == None: raise EvaluationError
+    cur = args[0]
+    for i in range(args[1]):
+        cur = cur.next
+        if cur == None: raise EvaluationError
+    return cur.elt
+
+def concat(args):
+    if args == []: return None
+    first_not_empty = 0
+    while args[first_not_empty] == None:
+        first_not_empty += 1
+        if first_not_empty == len(args): raise EvaluationError
+
+    head = LinkedList(args[first_not_empty].elt)
+    cur = head
+    for lst in args:
+        for i in range(length([lst])):
+            cur.next = LinkedList(elt_at([lst, i]))
+            cur = cur.next
+    return head.next
+
+#mapping of boolecur to carlae representations
 bools = {True: '#t', False: '#f'}
 
 #built-in functions
@@ -149,7 +202,13 @@ carlae_builtins = {
     '<=': lambda args: bools[custom_reduc(lambda x, y: x <= y, args)],
     #'and': see evaluate(), for short-circuit reasons
     #'or': see evaluate(), for short-circuit reasons
-    'not': lambda args: '#f' if args[0] == '#t' else '#t'
+    'not': lambda args: '#f' if args[0] == '#t' else '#t',
+    'list': listify,
+    'car': lambda args: args[0].elt if args[0] != None else EvaluationError(),
+    'cdr': lambda args: args[0].next if args[0] != None else EvaluationError(),
+    'length': length,
+    'elt-at-index': elt_at,
+    'concat': concat,
 }
 
 
@@ -163,6 +222,7 @@ def evaluate(tree, env=None):
                             parse function
     """
     #base case
+    #print(tree)
     if tree == []:
         raise EvaluationError
     #default env
@@ -173,7 +233,7 @@ def evaluate(tree, env=None):
         if op not in env:
             env[op] = carlae_builtins[op]
     #primitives
-    if type(tree) == float or type(tree) == int:
+    if type(tree) == float or type(tree) == int or isinstance(tree, LinkedList) or tree == None:
         return tree
     #evaluate-able expression
     elif type(tree) == list:
@@ -205,9 +265,9 @@ def evaluate(tree, env=None):
         #separate definitions for on-the-fly evaluation for short-circuiting purposes
         #cannot be built-ins because function calling preemptively evaluates all parameters
         elif tree[0] == 'and':
-            return bools[custom_reduc(lambda x, y: evaluate(x) == '#t', tree[1:]) and evaluate(tree[1:][-1]) == '#t']
+            return bools[custom_reduc(lambda x, y: evaluate(x, env) == '#t', tree[1:]) and evaluate(tree[1:][-1], env) == '#t']
         elif tree[0] == 'or':
-            return bools[not (custom_reduc(lambda x, y: evaluate(x) == '#f', tree[1:])) or evaluate(tree[1:][-1]) == '#t']
+            return bools[not (custom_reduc(lambda x, y: evaluate(x, env) == '#f', tree[1:])) or evaluate(tree[1:][-1], env) == '#t']
         #call function
         elif type(evaluate(tree[0], env)) == type(lambda x: x) or type(evaluate(tree[0], env)) == type(sum):
             func = evaluate(tree[0], env)
@@ -253,6 +313,7 @@ def result_and_env(tree, env=None):
         tree (list): tree structure of expression
         env (dictionary): environment to run commands in
     """
+    #print(tree)
     if env == None:
         env = {}
     return (evaluate(tree, env), env)
@@ -263,6 +324,7 @@ if __name__ == '__main__':
     # run (not when this module is imported)
     # a = parse(tokenize('( + 2 3'))
     # print(a)
-    # print(evaluate(parse(tokenize('( + 2 3'))))
+    env = {}
+    print(evaluate(['concat', ['concat'], ['list', 1]]))
     repl()
 
