@@ -245,8 +245,8 @@ carlae_builtins = {
     'map': carlae_map,
     'filter': carlae_filter,
     'reduce': carlae_reduce,
+    'begin': lambda args: args[-1],
 }
-
 
 def evaluate(tree, env=None):
     """
@@ -320,6 +320,7 @@ def evaluate(tree, env=None):
     if tree == '#f' or tree == '#t':
         return tree
     #undefined evaluation
+    print(tree)
     raise EvaluationError
 
 def evaluate_file(file, env=None):
@@ -365,7 +366,10 @@ if __name__ == '__main__':
     # run (not when this module is imported)
     # a = parse(tokenize('( + 2 3'))
     # print(a)
+    if len(sys.argv) > 1:
+        for file in sys.argv[1:]:
+            evaluate_file(file, carlae_builtins)
     env = {}
-    print(evaluate(['filter', ['lambda', 'x', ['>', 'x', 0]], ['list', 1, -1, -3, -2]]))
+    # print(evaluate(['filter', ['lambda', 'x', ['>', 'x', 0]], ['list', 1, -1, -3, -2]]))
     repl()
 
