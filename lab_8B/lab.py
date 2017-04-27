@@ -186,6 +186,39 @@ def concat(args):
             cur = cur.next
     return head.next
 
+def carlae_map(args):
+    fn = args[0]
+    cur = args[1]
+    while cur != None:
+        cur.elt = fn([cur.elt])
+        cur = cur.next
+    return args[1]
+
+def carlae_filter(args):
+    fn = args[0]
+    cur = args[1]
+    head = None
+    ans_cur = None
+    while cur != None:
+        if fn([cur.elt]) == '#t':
+            if head == None:
+                head = LinkedList(cur.elt)
+                ans_cur = head
+            else:
+                ans_cur.next = LinkedList(cur.elt)
+                ans_cur = ans_cur.next
+        cur = cur.next
+    return head
+
+def carlae_reduce(args):
+    fn = args[0]
+    cur = args[1]
+    ans = args[2]
+    while cur != None:
+        ans = fn([ans, cur.elt])
+        cur = cur.next
+    return ans
+
 #mapping of boolecur to carlae representations
 bools = {True: '#t', False: '#f'}
 
@@ -209,6 +242,9 @@ carlae_builtins = {
     'length': length,
     'elt-at-index': elt_at,
     'concat': concat,
+    'map': carlae_map,
+    'filter': carlae_filter,
+    'reduce': carlae_reduce,
 }
 
 
@@ -325,6 +361,6 @@ if __name__ == '__main__':
     # a = parse(tokenize('( + 2 3'))
     # print(a)
     env = {}
-    print(evaluate(['concat', ['concat'], ['list', 1]]))
+    print(evaluate(['filter', ['lambda', 'x', ['>', 'x', 0]], ['list', 1, -1, -3, -2]]))
     repl()
 
