@@ -322,6 +322,11 @@ def evaluate(tree, env=None):
     #undefined evaluation
     raise EvaluationError
 
+def evaluate_file(file, env=None):
+    f = open(file)
+    if env == None:
+        env = {}
+    return evaluate(parse(tokenize(f.read())), env)
 
 def repl(env=None):
     """
