@@ -248,7 +248,7 @@ carlae_builtins = {
     'begin': lambda args: args[-1],
 }
 
-parents = {}
+def_stack = []
 
 def evaluate(tree, env=None):
     """
@@ -280,13 +280,20 @@ def evaluate(tree, env=None):
                 func = evaluate(['define', tree[1][0], ['lambda', tree[1][1:], tree[2]]], env)
                 return func
             env[tree[1]] = evaluate(tree[2], env)
+            def_stack.append((tree[1], env))
             return env[tree[1]]
         elif tree[0] == 'set!':
-            cur_env = env.copy()
-            while tuple(sorted(env.items())) in parents:
-                if tuple(sorted(env.items())) in parents and tree[1] in parents[tuple(sorted(env.items()))]:
-                    parents[tuple(sorted(env.items()))][tree[1]] = evaluate(tree[2], env)
-                    return evaluate(tree[2], env)
+            # cur_env = env.copy()
+            # while tuple(sorted(env.items())) in parents:
+            #     if tuple(sorted(env.items())) in parents and tree[1] in parents[tuple(sorted(env.items()))]:
+            #         parents[tuple(sorted(env.items()))][tree[1]] = evaluate(tree[2], env)
+            #         return evaluate(tree[2], env)
+            first = list(filter(lambda x: x[0] == tree[1], def_stack[::-1]))
+            print(def_stack)
+            if first == []: raise EvaluationError
+            first = first[0]
+            first[1][tree[1]] = evaluate(tree[2], env)
+            return first[1][tree[1]]
         #lambda -> create function and return function object
         elif tree[0] == 'lambda':
             def fn(args): 
@@ -295,7 +302,7 @@ def evaluate(tree, env=None):
                 #define variables as parameters
                 for ind, param in enumerate(tree[1]):
                     fn_env[param] = args[ind]
-                parents[tuple(sorted(fn_env.items()))] = env
+                #parents[tuple(sorted(fn_env.items()))] = env
                 return evaluate(tree[2], fn_env)
             #fn_env[fn] = evaluate(fn, args?) ??????
             return fn
@@ -314,7 +321,7 @@ def evaluate(tree, env=None):
             new_env = env.copy()
             for exp in tree[1]:
                 new_env[exp[0]] = evaluate(exp[1], env)
-            parents[tuple(sorted(new_env.items()))] = env
+            #parents[tuple(sorted(new_env.items()))] = env
             return evaluate(tree[2], new_env)
         #call function
         elif type(evaluate(tree[0], env)) == type(lambda x: x) or type(evaluate(tree[0], env)) == type(sum):
@@ -368,7 +375,7 @@ def result_and_env(tree, env=None):
         tree (list): tree structure of expression
         env (dictionary): environment to run commands in
     """
-    print(tree)
+    #print(tree)
     if env == None:
         env = {}
     val = evaluate(tree, env)
