@@ -248,6 +248,8 @@ carlae_builtins = {
     'begin': lambda args: args[-1],
 }
 
+parents = {}
+
 def evaluate(tree, env=None):
     """
     Evaluate the given syntax tree according to the rules of the carlae
@@ -258,7 +260,6 @@ def evaluate(tree, env=None):
                             parse function
     """
     #base case
-    #print(tree)
     if tree == []:
         raise EvaluationError
     #default env
@@ -280,16 +281,21 @@ def evaluate(tree, env=None):
                 return func
             env[tree[1]] = evaluate(tree[2], env)
             return env[tree[1]]
+        elif tree[0] == 'set!':
+            cur_env = env.copy()
+            while tuple(sorted(env.items())) in parents:
+                if tuple(sorted(env.items())) in parents and tree[1] in parents[tuple(sorted(env.items()))]:
+                    parents[tuple(sorted(env.items()))][tree[1]] = evaluate(tree[2], env)
+                    return evaluate(tree[2], env)
         #lambda -> create function and return function object
         elif tree[0] == 'lambda':
             def fn(args): 
                 #create function environment, inherits superenvironment
-                fn_env = {}
-                for op in env:
-                    fn_env[op] = env[op]
+                fn_env = env.copy()
                 #define variables as parameters
                 for ind, param in enumerate(tree[1]):
                     fn_env[param] = args[ind]
+                parents[tuple(sorted(fn_env.items()))] = env
                 return evaluate(tree[2], fn_env)
             #fn_env[fn] = evaluate(fn, args?) ??????
             return fn
@@ -304,11 +310,18 @@ def evaluate(tree, env=None):
             return bools[custom_reduc(lambda x, y: evaluate(x, env) == '#t', tree[1:]) and evaluate(tree[1:][-1], env) == '#t']
         elif tree[0] == 'or':
             return bools[not (custom_reduc(lambda x, y: evaluate(x, env) == '#f', tree[1:])) or evaluate(tree[1:][-1], env) == '#t']
+        elif tree[0] == 'let':
+            new_env = env.copy()
+            for exp in tree[1]:
+                new_env[exp[0]] = evaluate(exp[1], env)
+            parents[tuple(sorted(new_env.items()))] = env
+            return evaluate(tree[2], new_env)
         #call function
         elif type(evaluate(tree[0], env)) == type(lambda x: x) or type(evaluate(tree[0], env)) == type(sum):
             func = evaluate(tree[0], env)
             params = list(map(lambda x: evaluate(x, env), tree[1:]))
             return evaluate(func(params), env)
+        print(tree)
         raise EvaluationError
     #function object 'primitive'
     elif type(tree) == type(lambda x: x):
@@ -320,7 +333,7 @@ def evaluate(tree, env=None):
     if tree == '#f' or tree == '#t':
         return tree
     #undefined evaluation
-    print(tree)
+    # print(tree)
     raise EvaluationError
 
 def evaluate_file(file, env=None):
@@ -355,10 +368,11 @@ def result_and_env(tree, env=None):
         tree (list): tree structure of expression
         env (dictionary): environment to run commands in
     """
-    #print(tree)
+    print(tree)
     if env == None:
         env = {}
-    return (evaluate(tree, env), env)
+    val = evaluate(tree, env)
+    return (val, env)
 
 
 if __name__ == '__main__':
@@ -370,6 +384,10 @@ if __name__ == '__main__':
         for file in sys.argv[1:]:
             evaluate_file(file, carlae_builtins)
     env = {}
-    # print(evaluate(['filter', ['lambda', 'x', ['>', 'x', 0]], ['list', 1, -1, -3, -2]]))
+
+    print(evaluate(['define', 'x', 28], env))
+    print(evaluate(['define', ['foo', 'x'], ['begin', ['let', [['y', ['+', 'x', 2]], ['z', ['*', 'x', 3]]], ['set!', 'x', ['+', 'y', 'z']]], 'x']], env))
+    print(evaluate(['foo', 9], env))
+    print(evaluate('x', env))
     repl()
 
