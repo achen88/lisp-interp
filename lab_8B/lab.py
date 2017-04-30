@@ -3,18 +3,6 @@
 import sys
 
 
-class LinkedList():
-    def __init__(self, val):
-        self.elt = val
-        self.next = None
-
-    def append(self, val):
-        self.next = LinkedList(val)
-
-    def __repr__(self):
-        return str(self.elt) + ' ' + str(self.next)
-
-
 class EvaluationError(Exception):
     """Exception to be raised if there is an error during evaluation."""
     pass
@@ -145,7 +133,42 @@ def custom_reduc(f, arr):
         start = val
     return True
 
+
+class LinkedList():
+    """Class to represent lists in carlae, structured as a linked list"""
+
+    def __init__(self, val):
+        """
+        Initializes LinkedList with given value
+
+        Args:
+            val (any): the value to initialize the head of the list to
+        """
+        self.elt = val
+        self.next = None
+
+    def append(self, val):
+        """
+        Creates and appends a node with given value to end of a LinkedList
+
+        Args:
+            self (LinkedList): LinkedList to append to
+            val (any): value to be appended
+        """
+        self.next = LinkedList(val)
+
+    def __repr__(self):
+        """Representation of LinkedList for easier debugging, returns all values in a list"""
+        return str(self.elt) + ' ' + str(self.next)
+
+
 def listify(args):
+    """
+    Puts a list of arguments into a LinkedList, returning the respective head
+
+    Args:
+        args (list): list of values to be turned into a list
+    """
     if args == []: return None
     head = LinkedList(args[0])
     cur = head
@@ -155,7 +178,14 @@ def listify(args):
     return head
 
 def length(args):
+    """
+    Finds the length of a LinkedList
+
+    Args:
+        args (list): argument list, of which the first element is assumed to be a LinkedList
+    """
     if args[0] == None: return 0
+    if not isinstance(args[0], LinkedList): raise EvaluationError
     size = 1
     cur = args[0]
     while cur.next != None:
@@ -164,7 +194,16 @@ def length(args):
     return size
 
 def elt_at(args):
+    """
+    Find the i-th element in a LinkedList. Raises EvaluationError if index is out of bounds.
+
+    args:
+        args (list): argument list
+            * 1st element: (LinkedList) list to look through, 
+            * 2nd element: (int) index to go to
+    """
     if args[0] == None: raise EvaluationError
+    if not isinstance(args[0], LinkedList): raise EvaluationError
     cur = args[0]
     for i in range(args[1]):
         cur = cur.next
@@ -172,12 +211,20 @@ def elt_at(args):
     return cur.elt
 
 def concat(args):
+    """
+    Concatenates a series of LinkedLists, returning head of the first.
+
+    Args:
+        args (list): a list of LinkedLists
+    """
     if args == []: return None
+    #check for empty list
     first_not_empty = 0
     while args[first_not_empty] == None:
         first_not_empty += 1
         if first_not_empty == len(args): raise EvaluationError
 
+    if not isinstance(args[first_not_empty], LinkedList): raise EvaluationError
     head = LinkedList(args[first_not_empty].elt)
     cur = head
     for lst in args:
@@ -187,16 +234,34 @@ def concat(args):
     return head.next
 
 def carlae_map(args):
+    """
+    Maps elements in a LinkedList with a given function.
+
+    Args:
+        args (list): a list with:
+            * 1st element: (function) function to map with
+            * 2nd element: (LinkedList) LinkedList to be mapped
+    """
     fn = args[0]
     cur = args[1]
+    if not isinstance(args[1], LinkedList): raise EvaluationError
     while cur != None:
         cur.elt = fn([cur.elt])
         cur = cur.next
     return args[1]
 
 def carlae_filter(args):
+    """
+    Filters elements in a LinkedList with a given function.
+
+    Args:
+        args (list): a list with:
+            * 1st element: (function) function to filter with
+            * 2nd element: (LinkedList) LinkedList to be mapped
+    """
     fn = args[0]
     cur = args[1]
+    if not isinstance(args[1], LinkedList): raise EvaluationError
     head = None
     ans_cur = None
     while cur != None:
@@ -211,8 +276,18 @@ def carlae_filter(args):
     return head
 
 def carlae_reduce(args):
+    """
+    Reduces elements in a LinkedList with a given function and starting value.
+
+    Args:
+        args (list): a list with:
+            * 1st element: (function) function to reduce with
+            * 2nd element: (LinkedList) LinkedList to be mapped
+            * 3rd element: (any) starting value to reduce with first element
+    """
     fn = args[0]
     cur = args[1]
+    if not isinstance(args[1], LinkedList): raise EvaluationError
     ans = args[2]
     while cur != None:
         ans = fn([ans, cur.elt])
@@ -248,6 +323,7 @@ carlae_builtins = {
     'begin': lambda args: args[-1],
 }
 
+#list of tuples of (variable, environment) to keep track of where variables were binded for set! implementation
 def_stack = []
 
 def evaluate(tree, env=None):
@@ -269,10 +345,12 @@ def evaluate(tree, env=None):
     for op in carlae_builtins:
         if op not in env:
             env[op] = carlae_builtins[op]
-    #primitives
-    if type(tree) == float or type(tree) == int or isinstance(tree, LinkedList) or tree == None:
+    #primitives -- float, int, LinkedList ref, empty LinkedList, function, False boolean, True boolean
+    if type(tree) == float or type(tree) == int or isinstance(tree, LinkedList) or tree == None or \
+            type(tree) == type(lambda x: x) or tree == '#f' or tree == '#t':
         return tree
     #evaluate-able expression
+    #check for keywords, then evaluate-able functions
     elif type(tree) == list:
         #define -> evaluate and store in env
         if tree[0] == 'define':
@@ -282,14 +360,10 @@ def evaluate(tree, env=None):
             env[tree[1]] = evaluate(tree[2], env)
             def_stack.append((tree[1], env))
             return env[tree[1]]
+        #set! -> get lowest-level environment where variable was bound and change binding
         elif tree[0] == 'set!':
-            # cur_env = env.copy()
-            # while tuple(sorted(env.items())) in parents:
-            #     if tuple(sorted(env.items())) in parents and tree[1] in parents[tuple(sorted(env.items()))]:
-            #         parents[tuple(sorted(env.items()))][tree[1]] = evaluate(tree[2], env)
-            #         return evaluate(tree[2], env)
             first = list(filter(lambda x: x[0] == tree[1], def_stack[::-1]))
-            # print(def_stack)
+            #no variable definition anywhere
             if first == []: raise EvaluationError
             first = first[0]
             first[1][tree[1]] = evaluate(tree[2], env)
@@ -304,7 +378,6 @@ def evaluate(tree, env=None):
                     fn_env[param] = args[ind]
                     def_stack.append((param, fn_env))
                 return evaluate(tree[2], fn_env)
-            #fn_env[fn] = evaluate(fn, args?) ??????
             return fn
         #if -> ternary statement
         elif tree[0] == 'if':
@@ -317,33 +390,35 @@ def evaluate(tree, env=None):
             return bools[custom_reduc(lambda x, y: evaluate(x, env) == '#t', tree[1:]) and evaluate(tree[1:][-1], env) == '#t']
         elif tree[0] == 'or':
             return bools[not (custom_reduc(lambda x, y: evaluate(x, env) == '#f', tree[1:])) or evaluate(tree[1:][-1], env) == '#t']
+        #let -> create local environment for evaluation
         elif tree[0] == 'let':
             new_env = env.copy()
+            #add one-time bindings and make note of
             for exp in tree[1]:
                 new_env[exp[0]] = evaluate(exp[1], env)
                 def_stack.append((exp[0], new_env))
             return evaluate(tree[2], new_env)
-        #call function
+        #call function if not a keyword
         elif type(evaluate(tree[0], env)) == type(lambda x: x) or type(evaluate(tree[0], env)) == type(sum):
             func = evaluate(tree[0], env)
             params = list(map(lambda x: evaluate(x, env), tree[1:]))
             return evaluate(func(params), env)
-        # print(tree)
+        #keyword DNE & is not valid function
         raise EvaluationError
-    #function object 'primitive'
-    elif type(tree) == type(lambda x: x):
-       return tree
-    #variable lookup
+    #variable binding lookup
     elif tree in env:
         return env[tree]
-    #boolean primitive
-    if tree == '#f' or tree == '#t':
-        return tree
     #undefined evaluation
-    # print(tree)
     raise EvaluationError
 
 def evaluate_file(file, env=None):
+    """
+    Evaluates carlae commands from file
+
+    Args:
+        file (string): filename with carlae commands
+        env (dictionary) [optional]: environment to run commands in
+    """
     f = open(file)
     if env == None:
         env = {}
@@ -389,12 +464,10 @@ def result_and_env(tree, env=None):
 if __name__ == '__main__':
     # code in this block will only be executed if lab.py is the main file being
     # run (not when this module is imported)
-    # a = parse(tokenize('( + 2 3'))
-    # print(a)
+
+    #evaluate command line arguments and feed into global env
     if len(sys.argv) > 1:
         for file in sys.argv[1:]:
             evaluate_file(file, carlae_builtins)
-    env = {}
-
+    # env = {}
     repl()
-
